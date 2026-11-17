@@ -12,7 +12,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.cornerRadius
@@ -72,6 +74,13 @@ class StockAppWidget : GlanceAppWidget() {
         }
     }
 
+    private fun refreshPrice(context: Context) {
+        CoroutineScope(Dispatchers.Default).launch {
+            PriceDataRepo.update()
+            StockAppWidget().updateAll(context)
+        }
+    }
+
     @Composable
     private fun StockDisplay(stateCount: Float) {
         val color = if (PriceDataRepo.change > 0) {
@@ -110,8 +119,10 @@ class StockAppWidget : GlanceAppWidget() {
 
     @Composable
     private fun Small(stateCount: Float) {
+        val context = LocalContext.current
         Column(
             modifier = GlanceModifier
+                .clickable { refreshPrice(context) }
                 .fillMaxSize()
                 .background(GlanceTheme.colors.background)
                 .padding(8.dp)
@@ -122,9 +133,11 @@ class StockAppWidget : GlanceAppWidget() {
 
     @Composable
     private fun Medium(stateCount: Float) {
+        val context = LocalContext.current
         Column(
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
             modifier = GlanceModifier
+                .clickable { refreshPrice(context) }
                 .fillMaxSize()
                 .cornerRadius(15.dp)
                 .background(GlanceTheme.colors.background)
